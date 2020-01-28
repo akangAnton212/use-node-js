@@ -1,41 +1,31 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var usb = require('usb')
+var buffer = require('buffer')
 var io = require('socket.io')(http);
 require('dotenv').config()
 
-app.get('/awe', function(req, res){
-    var device = usb.findByIds("13ba", "0018");
-    device.open();
-    var deviceINTF=device.interface(7);
-    
-    if (deviceINTF.isKernelDriverActive())
-        deviceINTF.detachKernelDriver();
-    deviceINTF.claim();
-    
-    
-    var ePs = deviceINTF.endpoints;
-    var epIN;
-    $.each( ePs, function( index, ep ){
-        if(ep.direction=="in"){
-            epIN=ep;
-    }
-    });
-    if(epIN){
-        epIN.on('data', function (data) {
-            alert("1"+data);
-        });
-        epIN.transferType = 2;
-        alert("non empty port : "+epIN);
-        epIN.transfer(64, function(error, data) {
-            console.log(error, data); 
-        });
-        alert("after transfer");
-    }else{
-        alert("unable to read .."); 
-    }    
+// var Hidstream = require('node-hid-stream').Keyboard;
+// var hidstream = new Hidstream({ vendorId: '13BA', productId: '0018' });
+ 
+// hidstream.on("data", function(data) {
+//   console.log(data); // Raw buffer from HDI device.
+// });
+
+var HID = require('node-hid');
+let vendorId = parseInt('13BA')
+let productId = parseInt('0018')
+// console.log(productId)
+var dev = new HID.HID(vendorId, productId);
+// console.log(device)
+
+dev.on("data", (data) => {
+    console.log(data)
 });
 
+dev.removeAllListeners("data");
+dev.write([EndPoint, 1, EndOfCommandToken]); // Makes device send an error message
+dev.close();
 
 http.listen(4600, () => {
     console.log('listening on *: 4600');
