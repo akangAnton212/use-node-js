@@ -6,16 +6,6 @@ require('dotenv').config()
 let vendorId = process.env.vID
 let productId = process.env.pID
 
-// var Hidstream = require('node-hid-stream').KeyboardCharacters;
-// var hidstream = new Hidstream({ vendorId: vendorId, productId: productId });
- 
-// hidstream.on("data", function(data) {
-//   console.log(data); // Raw buffer from HDI device.
-// });
-
-
-
-
 console.log(HID.devices())
 
 var dev = new HID.HID(vendorId, productId);
