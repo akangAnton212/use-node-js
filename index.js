@@ -1,32 +1,36 @@
 var app = require('express')();
 var http = require('http').Server(app);
-var usb = require('usb')
-var buffer = require('buffer')
-var io = require('socket.io')(http);
+var HID = require('node-hid');
 require('dotenv').config()
 
-// var Hidstream = require('node-hid-stream').Keyboard;
-// var hidstream = new Hidstream({ vendorId: '13BA', productId: '0018' });
+let vendorId = process.env.vID
+let productId = process.env.pID
+
+// var Hidstream = require('node-hid-stream').KeyboardCharacters;
+// var hidstream = new Hidstream({ vendorId: vendorId, productId: productId });
  
 // hidstream.on("data", function(data) {
 //   console.log(data); // Raw buffer from HDI device.
 // });
 
-var HID = require('node-hid');
-let vendorId = parseInt('13BA')
-let productId = parseInt('0018')
-// console.log(productId)
+
+
+
+console.log(HID.devices())
+
 var dev = new HID.HID(vendorId, productId);
-// console.log(device)
+// // console.log(device)
 
 dev.on("data", (data) => {
-    console.log(data)
+    //console.log('asli '+data)
+    let filtr = data.filter(function(val) {
+        return val === '<Buffer'
+    })
+    if (!filtr) {
+        console.log(data)
+    }
 });
 
-dev.removeAllListeners("data");
-dev.write([EndPoint, 1, EndOfCommandToken]); // Makes device send an error message
-dev.close();
-
-http.listen(4600, () => {
-    console.log('listening on *: 4600');
+http.listen(process.env.APP_LISTEN || 4700, () => {
+    console.log('listening on awe :'  +process.env.APP_LISTEN);
 });
